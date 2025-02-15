@@ -1,0 +1,9 @@
+
+okay, the idea is, what if there was a packages manager that could
+clone git repositories into a local directory?
+cause that would make things so much eaiser
+
+its gonna act and look like stuff like npm, pnpm and yarn
+so its gonna have a package.json kinda file
+where you specify what git repos you want, the `as` renameing, and where you want taht repo to
+be cloned into
