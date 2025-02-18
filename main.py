@@ -8,7 +8,7 @@ from project import (  # pack: ignore
     get_config_raw,  # pack: ignore
     new_proj,  # pack: ignore
     overwrite_config_raw,  # pack: ignore
-)# pack: ignore
+)  # pack: ignore
 from rich import get_console
 
 console = get_console()
@@ -47,6 +47,9 @@ def install():
     cfg = get_config()
     with console.status("cloning the git repositories"):
         for repo in cfg.repositories:
+            if os.path.exists(repo.target_dir):
+                print(f"error(): package repository {repo.target_dir!r} already exists")
+                os._exit(-1)
             useGit("clone", repo.url, repo.target_dir)
     print("installed all the git packages")
     os._exit(0)
@@ -90,6 +93,22 @@ def new():
             return
     new_proj()
     print("successfully initiated a new project.")
+    os._exit(0)
+
+
+@cli.command
+def update():
+    "update all the packages and install the ones that aren't installed yet"
+    cfg = get_config()
+    with console.status("cloning the git repositories"):
+        for repo in cfg.repositories:
+            if os.path.exists(repo.target_dir):
+                os.rmdir(repo.target_dir)
+                print(f"updating: {repo.url!r}")
+            else:
+                print(f"installing: {repo.url!r}")
+            useGit("clone", repo.url, repo.target_dir)
+    print("installed all the git packages")
     os._exit(0)
 
 
