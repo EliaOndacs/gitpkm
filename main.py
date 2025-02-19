@@ -112,6 +112,15 @@ def update():
     os._exit(0)
 
 
+@cli.command
+def list():
+    "list all the registered repository packages"
+    cfg = get_config()
+    for repo in cfg.repositories:
+        print(f"`{repo.url}` (at {repo.target_dir})")
+    os._exit(0)
+
+
 if __name__ == "__main__":
     cli()
     restore_output()
