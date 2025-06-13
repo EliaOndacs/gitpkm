@@ -42,30 +42,16 @@ def cli(quiet):
 
 
 @cli.command
-def install():
-    "install the packages"
-    cfg = get_config()
-    with console.status("cloning the git repositories"):
-        for repo in cfg.repositories:
-            if os.path.exists(repo.target_dir):
-                print(f"error(): package repository {repo.target_dir!r} already exists")
-                os._exit(-1)
-            useGit("clone", repo.url, repo.target_dir)
-    print("installed all the git packages")
-    os._exit(0)
-
-
-@cli.command
 @click.argument("url")
 @click.argument("target_dir")
 def add(url, target_dir):
-    "add a package"
+    "add a new package to the registry"
     cfg: _GitConfigurations = get_config_raw()
     for repo in cfg["repositories"]:
         if repo["url"] == url:
             print("repo already added to the list of packages.")
             os._exit(0)
-    cfg["repositories"].append({"url": url, "target_dir": target_dir})
+    cfg["repositories"].append({"url": url, "dir": target_dir})
     overwrite_config_raw(cfg)
     os._exit(0)
 
@@ -73,7 +59,7 @@ def add(url, target_dir):
 @cli.command
 @click.argument("url")
 def remove(url):
-    "remove a package"
+    "remove a package by its url"
     cfg: _GitConfigurations = get_config_raw()
     for index, repo in enumerate(cfg["repositories"]):
         if repo["url"] == url:
@@ -84,30 +70,32 @@ def remove(url):
 
 
 @cli.command
-def new():
-    "create a default `git-package.json` configurations"
+def init():
+    "create a new git package manager repository"
     if os.path.exists("git-package.json"):
         print("git configuration already exists in this directory.")
         if not click.confirm("do you want to overwrite it"):
             print("[canceled]")
             return
     new_proj()
-    print("successfully initiated a new project.")
+    useGit("init")
+    useGit("commit", "-m", "init repo", "-a")
+    print("successfully initiated a new git project.")
     os._exit(0)
 
 
 @cli.command
-def update():
+def sync():
     "update all the packages and install the ones that aren't installed yet"
     cfg = get_config()
     with console.status("cloning the git repositories"):
         for repo in cfg.repositories:
-            if os.path.exists(repo.target_dir):
-                os.rmdir(repo.target_dir)
+            if os.path.exists(repo.dir):
+                os.rmdir(repo.dir)
                 print(f"updating: {repo.url!r}")
             else:
                 print(f"installing: {repo.url!r}")
-            useGit("clone", repo.url, repo.target_dir)
+            useGit("clone", repo.url, repo.dir)
     print("installed all the git packages")
     os._exit(0)
 
@@ -117,7 +105,7 @@ def list():
     "list all the registered repository packages"
     cfg = get_config()
     for repo in cfg.repositories:
-        print(f"`{repo.url}` (at {repo.target_dir})")
+        print(f"`{repo.url}` (at {repo.dir})")
     os._exit(0)
 
 
