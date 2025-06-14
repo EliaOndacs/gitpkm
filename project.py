@@ -44,7 +44,7 @@ def get_config() -> GitConfigurations:
         json_data: _GitConfigurations = get_config_raw()
         for index, repo in enumerate(json_data["repositories"]):
             json_data["repositories"][index] = GitRepo(**repo)  # type: ignore
-        config = GitConfigurations(**json_data, name=json_data["name"], description=json_data["description"], version=json_data["version"])  # type: ignore # Validate and parse the data
+        config = GitConfigurations(**json_data)  # type: ignore # Validate and parse the data
         return config
     except ValidationError as e:
         print("error: Invalid configuration data!")
@@ -73,7 +73,7 @@ def new_proj():
         json.dump(
             {
                 "repositories": [],
-                "name": cwd.name,
+                "name": cwd.name or "undefined",
                 "description": "YOUR PROJECT DESCRIPTION",
                 "version": "0.1.0",
             },

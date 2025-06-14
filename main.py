@@ -79,7 +79,8 @@ def init():
             return
     new_proj()
     useGit("init")
-    useGit("commit", "-m", "init repo", "-a")
+    useGit("add", ".")
+    useGit("commit", "-m", "init repo")
     print("successfully initiated a new git project.")
     os._exit(0)
 
@@ -102,7 +103,7 @@ def sync():
 
 @cli.command
 def list():
-    "list all the registered repository packages"
+    "list all the registered packages"
     cfg = get_config()
     for repo in cfg.repositories:
         print(f"`{repo.url}` (at {repo.dir})")
